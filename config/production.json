@@ -1,0 +1,13 @@
+{
+    "mysql":{
+        "db_user" : "",
+        "db_pass" : "",
+        "db_server" : "",
+        "db_port" : "",
+        "db_name" : "base de pepe"
+    },
+    "url": {
+        "url_base": "",
+        "url_port": ""
+    }
+}
