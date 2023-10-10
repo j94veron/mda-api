@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/gorilla/mux"
 	"go-api/internal/handler"
-	"go-api/internal/platform"
+	"go-api/internal/platform/mda"
 	"go-api/internal/service"
 	"net/http"
 )
@@ -14,7 +14,7 @@ func Run() error {
 			Path: "http://ministerio.com",
 		},
 	}
-	mdaClient := platform.NewMDAClient(config.MDAConfig.Path)
+	mdaClient := mda.NewMDAClient(config.MDAConfig.Path)
 	orderService := service.NewOrderService(mdaClient, "db")
 
 	r := mux.NewRouter()

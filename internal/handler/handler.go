@@ -16,16 +16,42 @@ func NewSendOrderHandler(orderService service.OrderService) http.HandlerFunc {
 		}
 
 		orderReq := service.OrderRequest{
-			OrderID: reqDTO.Token,
+			OrderID:   reqDTO.Token,
+			OrderDev:  reqDTO.Devolucion,
+			OrderNro:  reqDTO.NroRemito,
+			OrderDate: reqDTO.FechaEmision,
+			OrderCuit: reqDTO.CuitDestino,
+			Products:  getProducts(reqDTO.Productos),
 		}
 
-		err = orderService.SendOrder(r.Context(), orderReq)
+		res, err := orderService.SendOrder(r.Context(), orderReq)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+
+		jsonResponse, err := json.Marshal(res)
+		if err != nil {
+			http.Error(w, "error parsing response", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
+		w.Write(jsonResponse)
 	}
+}
+
+func getProducts(productos []product) []service.ProductRequest {
+	var products []service.ProductRequest
+	for _, value := range productos {
+		products = append(products, service.ProductRequest{
+			RegisterNumber: value.NroRegistro,
+			QuantityNumber: value.Cantidad,
+			Content:        value.Contenido,
+		})
+	}
+	return products
 }
 
 type order struct {
@@ -38,7 +64,7 @@ type order struct {
 }
 
 type product struct {
-	NroRegistro string  `json:"nro_registro"`
-	Cantidad    int     `json:"cantidad"`
-	Contenido   float64 `json:"contenido"`
+	NroRegistro string `json:"nro_registro"`
+	Cantidad    int    `json:"cantidad"`
+	Contenido   int    `json:"contenido"`
 }

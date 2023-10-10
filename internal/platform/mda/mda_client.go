@@ -1,4 +1,4 @@
-package platform
+package mda
 
 import "context"
 
@@ -19,11 +19,15 @@ func (o *mdaClientImpl) SendOrder(ctx context.Context, request OrderRequest) err
 }
 
 type OrderRequest struct {
-	OrderID string `json:"order_id"`
+	OrderID   string `json:"token"`
+	OrderDev  string `json:"devolucion"`
+	OrderNro  string `json:"nro_aremito"`
+	OrderDate string `json:"fecha_emision"`
+	OrderCuit string `json:"cuit_destino"`
 }
 
 func NewMDAClient(url string) MDAClient {
 	return &mdaClientImpl{
-		endpoint: "http://ministerio.com.ar",
+		endpoint: url,
 	}
 }
