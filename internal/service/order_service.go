@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"go-api/internal/platform/mda"
+	"go-api/internal/storage"
 )
 
 // OrderService - Process and send orders to MDA.
@@ -14,7 +15,7 @@ type OrderService interface {
 // OrderServiceImp - Impl. from OrderService.
 type orderServiceImp struct {
 	mdaClient   mda.MDAClient
-	mysqlClient string
+	mysqlClient storage.MysqlRepository
 }
 
 // ProcessOrders -
@@ -59,7 +60,7 @@ func getProductMock(productsReq []ProductRequest) []ProductResponse {
 	return productsRes
 }
 
-func NewOrderService(mdaClient mda.MDAClient, mysqlClient string) OrderService {
+func NewOrderService(mdaClient mda.MDAClient, mysqlClient storage.MysqlRepository) OrderService {
 	return &orderServiceImp{
 		mdaClient:   mdaClient,
 		mysqlClient: mysqlClient,

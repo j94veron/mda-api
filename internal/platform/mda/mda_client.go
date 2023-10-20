@@ -1,6 +1,13 @@
 package mda
 
-import "context"
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"go-api/config"
+	"net/http"
+)
 
 type MDAClient interface {
 	SendOrder(ctx context.Context, request OrderRequest) error
@@ -10,11 +17,18 @@ type mdaClientImpl struct {
 	endpoint string
 }
 
-func (o *mdaClientImpl) SendOrder(ctx context.Context, request OrderRequest) error {
+func (c *mdaClientImpl) SendOrder(ctx context.Context, request OrderRequest) error {
+	payload, err := json.Marshal(request)
+	if err != nil {
+		return err
+	}
 
-	//body := `"order_id": 50`
-	//err := endpoint.post(body)
+	res, err := http.Post(c.endpoint, "application/json", bytes.NewBuffer(payload))
+	if err != nil {
+		return err
+	}
 
+	fmt.Println(res)
 	return nil
 }
 
@@ -26,8 +40,9 @@ type OrderRequest struct {
 	OrderCuit string `json:"cuit_destino"`
 }
 
-func NewMDAClient(url string) MDAClient {
+func NewMDAClient(config config.MDAConfig) MDAClient {
+	endpoint := fmt.Sprintf("%s%s", config.URLBase, config.Path)
 	return &mdaClientImpl{
-		endpoint: url,
+		endpoint: endpoint,
 	}
 }

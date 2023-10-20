@@ -1,13 +1,13 @@
 {
-    "mysql":{
-        "db_user" : "",
-        "db_pass" : "",
-        "db_server" : "",
-        "db_port" : "",
-        "db_name" : "base de pepe"
+    "mysql_config":{
+        "db_user" : "root",
+        "db_pass" : "123456",
+        "db_server" : "root@localhost",
+        "db_port" : ":3306",
+        "db_name" : "test_db"
     },
-    "url": {
-        "url_base": "",
-        "url_port": ""
+    "mda_config": {
+        "url_base": "https://mi.mda.gba.gob.ar",
+        "url_path": "/rao/endpoint/aremito/cargar"
     }
 }

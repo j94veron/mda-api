@@ -1,21 +1,27 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gorilla/mux"
+	"go-api/config"
 	"go-api/internal/handler"
 	"go-api/internal/platform/mda"
 	"go-api/internal/service"
+	"go-api/internal/storage"
 	"net/http"
 )
 
 func Run() error {
-	config := Configuration{
-		MDAConfig: MDA{
-			Path: "http://ministerio.com",
-		},
+	var appConfig config.Configuration
+	err := config.LoadConfig(&appConfig)
+	if err != nil {
+		fmt.Println(fmt.Printf("error loading config %v", err))
+		return err
 	}
-	mdaClient := mda.NewMDAClient(config.MDAConfig.Path)
-	orderService := service.NewOrderService(mdaClient, "db")
+
+	mysqlClient := storage.NewMysqlRepository(appConfig.MySQLConfig)
+	mdaClient := mda.NewMDAClient(appConfig.MDAConfig)
+	orderService := service.NewOrderService(mdaClient, mysqlClient)
 
 	r := mux.NewRouter()
 	r.HandleFunc("/order/send", handler.NewSendOrderHandler(orderService)).Methods("POST")
