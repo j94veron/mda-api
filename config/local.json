@@ -2,12 +2,12 @@
     "mysql":{
         "db_user" : "root",
         "db_pass" : "123456",
-        "db_server" : "Mysql@localhost:",
+        "db_server" : "127.0.0.1",
         "db_port" : "3306",
         "db_name" : "test_db"
     },
     "url": {
-        "url_base": "",
-        "url_port": ""
+        "url_base": "https://mi.mda.gba.gob.ar",
+        "url_port": "/rao/endpoint/aremito/cargar"
     }
 }

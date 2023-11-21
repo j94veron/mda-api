@@ -25,6 +25,7 @@ func Run() error {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/order/send", handler.NewSendOrderHandler(orderService)).Methods("POST")
+	r.HandleFunc("/order", handler.NewPendingOrdersHandler(orderService)).Methods("GET")
 	http.Handle("/", r)
 
 	return nil

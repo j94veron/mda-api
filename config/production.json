@@ -2,8 +2,8 @@
     "mysql_config":{
         "db_user" : "root",
         "db_pass" : "123456",
-        "db_server" : "root@localhost",
-        "db_port" : ":3306",
+        "db_server" : "127.0.0.1",
+        "db_port" : "3306",
         "db_name" : "test_db"
     },
     "mda_config": {
