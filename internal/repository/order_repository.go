@@ -4,48 +4,47 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"go-api/config"
 	"log"
 )
 
 const (
 	_findPendingOrders = "select a.nrointerno, a.token, a.devolucion, a.nro_aremito, a.cuit_destino, a.fecha_emision, b.nro_registro, b.cantidad, b.contenido from  test_db.cab_aremito a inner join test_db.cue_aremito b on a.nrointerno = b.nrointerno and a.status = 'P'"
-	_updateOrder       = "update test_db.cab_aremito set status =? , message_error =?  where nrointerno =? "
+	_updateOrder       = "update test_db.cab_aremito set status =? , error_message =?  where nrointerno =? "
 )
 
-type MysqlRepository interface {
+type OrderRepository interface {
 	FindPendingOrders() ([]Order, error)
-	UpdateOrder(nroInterno int, newError string, newMessage string) error
+	UpdateOrder(orderId int, newError string, newMessage string) error
 }
 
-type mysqlRepositoryImpl struct {
-	dataSource string
+type orderRepositoryImpl struct {
+	dbConnection *sql.DB
 }
 
-func (p *mysqlRepositoryImpl) UpdateOrder(nroInterno int, newError string, newMessage string) error {
-	conn, err := p.getConnection()
+func (p *orderRepositoryImpl) UpdateOrder(orderId int, newError string, newMessage string) error {
+	row, err := p.dbConnection.Prepare(_updateOrder)
 	if err != nil {
 		return err
 	}
 
-	row, err := conn.Prepare(_updateOrder)
-	if err != nil {
-		return err
-	}
-	defer row.Close()
+	defer func(row *sql.Stmt) {
+		err := row.Close()
+		if err != nil {
+
+		}
+	}(row)
 
 	// Execute the update query
-	_, err = row.Exec(newError, newMessage, nroInterno)
+	_, err = row.Exec(newError, newMessage, orderId)
 	if err != nil {
 		log.Printf("Error al ejecutar la consulta de actualización: %v", err)
-		return err
+		return fmt.Errorf("error al ejecutar consulta %v", err)
 	}
-	log.Printf("Error al ejecutar la consulta de actualización: %v", err)
 	return nil
 }
 
-func (p *mysqlRepositoryImpl) FindPendingOrders() ([]Order, error) {
-	conn, err := p.getConnection()
+func (p *OrderRepository) FindPendingOrders() ([]Order, error) {
+	conn, err :=
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +69,7 @@ func (p *mysqlRepositoryImpl) FindPendingOrders() ([]Order, error) {
 
 	orderMap := make(map[int]*Order)
 	for rows.Next() {
-		var result row
+		var result Row
 		err := rows.Scan(&result.nroInterno,
 			&result.token,
 			&result.devolucion,
@@ -123,55 +122,4 @@ func mapToArray(inputMap map[int]*Order) []Order {
 	}
 
 	return resultArray
-}
-
-// GetConnection - Returns mysql connection.
-func (p *mysqlRepositoryImpl) getConnection() (*sql.DB, error) {
-	db, err := sql.Open("mysql", p.dataSource)
-	if err != nil {
-		return nil, err
-	}
-
-	return db, nil
-}
-
-func NewMysqlRepository(config config.MySQLConfig) MysqlRepository {
-	dataSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
-		config.DBUser,
-		config.DBPass,
-		config.DBServer,
-		config.DBPort,
-		config.DBName,
-	)
-	return &mysqlRepositoryImpl{
-		dataSource: dataSource,
-	}
-}
-
-type row struct {
-	nroInterno   int
-	token        string
-	devolucion   int
-	nroRemito    string
-	cuitDestino  string
-	fechaEmision string
-	nroRegistro  string
-	cantidad     int
-	contenido    int
-}
-
-type Order struct {
-	NroInterno   int
-	Token        string
-	Devolucion   int
-	NroRemito    string
-	CuitDestino  string
-	FechaEmision string
-	Productos    []Product
-}
-
-type Product struct {
-	NroRegistro string
-	Cantidad    int
-	Contenido   int
 }
